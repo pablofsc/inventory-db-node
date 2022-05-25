@@ -1,6 +1,9 @@
 import express, { Request, Response } from 'express'
 import bodyparser from 'body-parser'
 import dotenv from 'dotenv'
+
+const cors = require('cors')
+
 import * as db from './queries'
 
 dotenv.config()
@@ -8,6 +11,7 @@ const port = process.env.PORT
 
 const app = express()
 
+app.use(cors())
 app.use(bodyparser.json())
 app.use(
     bodyparser.urlencoded({
