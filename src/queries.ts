@@ -15,6 +15,8 @@ const pool = new Pool({
     }
 })
 
+console.log(process.env.POSTGRES_HOST)
+
 const getInventoryTable = (req: Request, res: Response) => {
     pool.query('SELECT * FROM public."Product"', (error: Error, results: any) => {
         if (error) { throw error }
