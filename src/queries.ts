@@ -1,7 +1,6 @@
-import { Request, response, Response } from 'express'
+import { Request, Response } from 'express'
 
 const Pool = require('pg').Pool
-const postgresPassword = process.env.POSTGRES_PASSWORD
 
 const pool = new Pool({
     user: process.env.POSTGRES_USER,

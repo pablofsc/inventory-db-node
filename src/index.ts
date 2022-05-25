@@ -30,4 +30,4 @@ app.get('/', (req: Request, res: Response) => {
     res.send('well done')
 })
 
-app.listen(port, () => console.log(`NOW RUNNING ON http://localhost:${port}`))
+app.listen(port, () => console.log(`NOW RUNNING ON PORT ${port}`))
