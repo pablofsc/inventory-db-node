@@ -4,11 +4,14 @@ const Pool = require('pg').Pool
 const postgresPassword = process.env.POSTGRES_PASSWORD
 
 const pool = new Pool({
-    user: 'ndvlxnlwzflnoo',
-    host: 'ec2-34-231-177-125.compute-1.amazonaws.com',
-    database: 'd8vetsp722ahft',
-    password: '7df2857b09be12ac6dc367831ee3a0ed08696191caec3a79d7da0af196fe8054',
-    port: 5432
+    user: process.env.POSTGRES_USER,
+    host: process.env.POSTGRES_HOST,
+    database: process.env.POSTGRES_DB,
+    password: process.env.POSTGRES_PASSWORD,
+    port: process.env.POSTGRES_PORT,
+    ssl: {
+        rejectUnauthorized: false,
+    }
 })
 
 const getInventoryTable = (req: Request, res: Response) => {
