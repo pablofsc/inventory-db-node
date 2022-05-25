@@ -79,6 +79,11 @@ const registerClient = (req: Request, res: Response) => {
 
     const { name } = req.body
 
+    if (name === undefined) {
+        console.log("Refused to register incomplete data")
+        return
+    }
+
     pool.query(`
         INSERT INTO public."Client" (
             name
@@ -98,6 +103,13 @@ const registerProduct = (req: Request, res: Response) => {
 
     const { name, price, description } = req.body
 
+    if (name === undefined ||
+        price === undefined ||
+        description === undefined) {
+        console.log("Refused to register incomplete data")
+        return
+    }
+
     pool.query(`
         INSERT INTO public."Product" (
             name, default_price, description
@@ -116,6 +128,16 @@ const registerSale = (req: Request, res: Response) => {
     console.log(req.body)
 
     const { product, batch, client, quantity, date, price } = req.body
+
+    if (product === undefined ||
+        batch === undefined ||
+        client === undefined ||
+        quantity === undefined ||
+        date === undefined ||
+        price === undefined) {
+        console.log("Refused to register incomplete data")
+        return
+    }
 
     let consistent = true
 
@@ -148,6 +170,12 @@ const registerSupplier = (req: Request, res: Response) => {
     console.log(req.body)
 
     const { name, description } = req.body
+
+    if (name === undefined ||
+        description === undefined) {
+        console.log("Refused to register incomplete data")
+        return
+    }
 
     pool.query(`
         INSERT INTO public."Supplier" (
