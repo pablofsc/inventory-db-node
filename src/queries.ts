@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+require('dotenv').config()
 
 const Pool = require('pg').Pool
 
@@ -8,6 +9,7 @@ const pool = new Pool({
     database: process.env.POSTGRES_DB,
     password: process.env.POSTGRES_PASSWORD,
     port: process.env.POSTGRES_PORT,
+
     ssl: {
         rejectUnauthorized: false,
     }
