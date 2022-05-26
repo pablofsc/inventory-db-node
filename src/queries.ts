@@ -107,6 +107,7 @@ const registerSale = (req: Request, res: Response) => {
 
     pool.query(`SELECT quantity_in_stock FROM public."Product" WHERE id = ${product}`)
         .then((result: any) => {
+            console.log(result)
             if (result.rows[0].quantity_in_stock < quantity) {
                 console.log("Refused to register sale of inexistent item")
             }
