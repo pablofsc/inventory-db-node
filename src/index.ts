@@ -20,15 +20,12 @@ app.use(
 )
 
 app.get('/inventory', db.getInventoryTable)
-app.get('/batches', db.getBatchTable)
 app.get('/clients', db.getClientTable)
 app.get('/sales', db.getSaleTable)
 
-app.post('/newbatch', db.registerBatch)
-app.post('/newclient', db.registerClient)
 app.post('/newproduct', db.registerProduct)
+app.post('/newclient', db.registerClient)
 app.post('/newsale', db.registerSale)
-app.post('/newsupplier', db.registerSupplier)
 
 app.get('/', (req: Request, res: Response) => {
     res.send('well done')
