@@ -43,6 +43,7 @@ const registerClient = (req: Request, res: Response) => {
 
     if (name === undefined) {
         console.log("Refused to register incomplete data")
+        res.status(400).json({ "results": "incomplete" })
         return
     }
 
@@ -69,6 +70,7 @@ const registerProduct = (req: Request, res: Response) => {
         price === undefined ||
         quantity === undefined) {
         console.log("Refused to register incomplete data")
+        res.status(400).json({ "results": "incomplete" })
         return
     }
 
@@ -97,6 +99,7 @@ const registerSale = (req: Request, res: Response) => {
         date === undefined ||
         price === undefined) {
         console.log("Refused to register incomplete data")
+        res.status(400).json({ "results": "incomplete" })
         return
     }
 
