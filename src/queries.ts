@@ -126,12 +126,6 @@ const registerSale = (req: Request, res: Response) => {
                         WHERE id = ${product};
                         `, (error: Error, results: any) => {
                             if (error) { throw error }
-                            else {
-
-
-                                console.log("Registered")
-                                res.status(200).json({ "results": "success" })
-                            }
                         })
 
                         console.log("Registered")
