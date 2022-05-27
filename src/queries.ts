@@ -103,8 +103,6 @@ const registerSale = (req: Request, res: Response) => {
         return
     }
 
-    let consistent = false
-
     pool.query(`SELECT quantity_in_stock FROM public."Product" WHERE id = ${product}`)
         .then((result: any) => {
             if (result.rows[0] === undefined || result.rows[0].quantity_in_stock < quantity) {
@@ -121,13 +119,28 @@ const registerSale = (req: Request, res: Response) => {
                     ${product}, ${client}, ${quantity}, '${date}', ${price}
                 );`, (error: Error, results: any) => {
                     if (error) { throw error }
-                    console.log("Registered")
-                    res.status(200).json({ "results": "success" })
+                    else {
+                        pool.query(`
+                        UPDATE public."Product"
+                        SET quantity_in_stock = quantity_in_stock - 1
+                        WHERE id = ${product};
+                        `, (error: Error, results: any) => {
+                            if (error) { throw error }
+                            else {
+
+
+                                console.log("Registered")
+                                res.status(200).json({ "results": "success" })
+                            }
+                        })
+
+                        console.log("Registered")
+                        res.status(200).json({ "results": "success" })
+                    }
                 })
             }
         })
         .catch((e: Error) => console.log(e))
-
 }
 
 export {
