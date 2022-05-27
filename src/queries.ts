@@ -151,7 +151,7 @@ const updateClient = (req: Request, res: Response) => {
 
     pool.query(`
         UPDATE public."Client"
-        SET name=${name}
+        SET name='${name}'
         WHERE id = ${id};
         `, (error: Error, results: any) => {
         if (error) { throw error }
