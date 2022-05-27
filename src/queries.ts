@@ -64,7 +64,7 @@ const registerProduct = (req: Request, res: Response) => {
     console.log("Received new product to be registered:")
     console.log(req.body)
 
-    const { name, price, description: quantity } = req.body
+    const { name, price, quantity } = req.body
 
     if (name === undefined ||
         price === undefined ||
