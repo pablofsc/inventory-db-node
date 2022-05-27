@@ -137,12 +137,37 @@ const registerSale = (req: Request, res: Response) => {
         .catch((e: Error) => console.log(e))
 }
 
+const updateClient = (req: Request, res: Response) => {
+    console.log("Received new update to client:")
+    console.log(req.body)
+
+    const { id, name } = req.body
+
+    if (name === undefined || id === undefined) {
+        console.log("Refused to update with incomplete data")
+        res.status(400).json({ "results": "incomplete" })
+        return
+    }
+
+    pool.query(`
+        UPDATE public."Client"
+        SET name=${name}
+        WHERE id = ${id};
+        `, (error: Error, results: any) => {
+        if (error) { throw error }
+
+        res.status(200).json({ "results": "success" })
+    })
+}
+
 export {
-    getInventoryTable,
     getClientTable,
+    getInventoryTable,
     getSaleTable,
 
     registerClient,
     registerProduct,
-    registerSale
+    registerSale,
+
+    updateClient
 }

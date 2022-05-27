@@ -27,6 +27,8 @@ app.post('/newproduct', db.registerProduct)
 app.post('/newclient', db.registerClient)
 app.post('/newsale', db.registerSale)
 
+app.post('/updateclient', db.updateClient)
+
 app.get('/', (req: Request, res: Response) => {
     res.send('well done')
 })
