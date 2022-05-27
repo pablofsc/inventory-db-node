@@ -112,6 +112,7 @@ const registerSale = (req: Request, res: Response) => {
             }
             else {
                 consistent = true
+                console.log("Sale is consistent")
             }
         })
         .catch((e: Error) => console.log(e))
@@ -125,11 +126,12 @@ const registerSale = (req: Request, res: Response) => {
             ${product}, ${client}, ${quantity}, '${date}', ${price}
         );`, (error: Error, results: any) => {
             if (error) { throw error }
-
+            console.log("Registered")
             res.status(200).json({ "results": "success" })
         })
     }
     else {
+        console.log("Responded with code 400")
         res.status(400).json({ "results": "invalid" })
     }
 }
