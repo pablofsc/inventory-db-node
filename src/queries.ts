@@ -109,31 +109,25 @@ const registerSale = (req: Request, res: Response) => {
         .then((result: any) => {
             if (result.rows[0] === undefined || result.rows[0].quantity_in_stock < quantity) {
                 console.log("Refused to register sale of inexistent item")
+                res.status(400).json({ "results": "invalid" })
             }
             else {
-                consistent = true
                 console.log("Sale is consistent")
+                pool.query(`
+                INSERT INTO public."Sale" (
+                    product_id, client_id, quantity, sale_date, price
+                )
+                VALUES (
+                    ${product}, ${client}, ${quantity}, '${date}', ${price}
+                );`, (error: Error, results: any) => {
+                    if (error) { throw error }
+                    console.log("Registered")
+                    res.status(200).json({ "results": "success" })
+                })
             }
         })
         .catch((e: Error) => console.log(e))
 
-    if (consistent) {
-        pool.query(`
-        INSERT INTO public."Sale" (
-            product_id, client_id, quantity, sale_date, price
-        )
-        VALUES (
-            ${product}, ${client}, ${quantity}, '${date}', ${price}
-        );`, (error: Error, results: any) => {
-            if (error) { throw error }
-            console.log("Registered")
-            res.status(200).json({ "results": "success" })
-        })
-    }
-    else {
-        console.log("Responded with code 400")
-        res.status(400).json({ "results": "invalid" })
-    }
 }
 
 export {
