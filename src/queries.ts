@@ -11,37 +11,46 @@ const pool = new Pool({
     }
 })
 
-const getInventoryTable = (req: Request, res: Response) => {
+export const getInventoryTable = (req: Request, res: Response) => {
     pool.query('SELECT * FROM public."Product"', (error: Error, results: any) => {
-        if (error) { throw error }
+        if (error) {
+            res.status(500).json({ "results": "error" })
+            throw error
+        }
 
         res.status(200).json(results.rows)
     })
 }
 
-const getClientTable = (req: Request, res: Response) => {
+export const getClientTable = (req: Request, res: Response) => {
     pool.query('SELECT * FROM public."Client"', (error: Error, results: any) => {
-        if (error) { throw error }
+        if (error) {
+            res.status(500).json({ "results": "error" })
+            throw error
+        }
 
         res.status(200).json(results.rows)
     })
 }
 
-const getSaleTable = (req: Request, res: Response) => {
+export const getSaleTable = (req: Request, res: Response) => {
     pool.query('SELECT * FROM public."Sale"', (error: Error, results: any) => {
-        if (error) { throw error }
+        if (error) {
+            res.status(500).json({ "results": "error" })
+            throw error
+        }
 
         res.status(200).json(results.rows)
     })
 }
 
-const registerClient = (req: Request, res: Response) => {
+export const registerClient = (req: Request, res: Response) => {
     console.log("Received new client to be registered:")
     console.log(req.body)
 
     const { name } = req.body
 
-    if (name === undefined) {
+    if (!name) {
         console.log("Refused to register incomplete data")
         res.status(400).json({ "results": "incomplete" })
         return
@@ -54,21 +63,22 @@ const registerClient = (req: Request, res: Response) => {
         VALUES (
             '${name}'
         );`, (error: Error, results: any) => {
-        if (error) { throw error }
+        if (error) {
+            res.status(500).json({ "results": "error" })
+            throw error
+        }
 
         res.status(200).json({ "results": "success" })
     })
 }
 
-const registerProduct = (req: Request, res: Response) => {
+export const registerProduct = (req: Request, res: Response) => {
     console.log("Received new product to be registered:")
     console.log(req.body)
 
     const { name, price, quantity } = req.body
 
-    if (name === undefined ||
-        price === undefined ||
-        quantity === undefined) {
+    if (!name || !price || !quantity) {
         console.log("Refused to register incomplete data")
         res.status(400).json({ "results": "incomplete" })
         return
@@ -81,23 +91,22 @@ const registerProduct = (req: Request, res: Response) => {
         VALUES (
             '${name}', ${price}, ${quantity}
         );`, (error: Error, results: any) => {
-        if (error) { throw error }
+        if (error) {
+            res.status(500).json({ "results": "error" })
+            throw error
+        }
 
         res.status(200).json({ "results": "success" })
     })
 }
 
-const registerSale = (req: Request, res: Response) => {
+export const registerSale = (req: Request, res: Response) => {
     console.log("Received new sale to be registered:")
     console.log(req.body)
 
     const { product, client, quantity, date, price } = req.body
 
-    if (product === undefined ||
-        client === undefined ||
-        quantity === undefined ||
-        date === undefined ||
-        price === undefined) {
+    if (!product || !client || !quantity || !date || !price) {
         console.log("Refused to register incomplete data")
         res.status(400).json({ "results": "incomplete" })
         return
@@ -118,14 +127,20 @@ const registerSale = (req: Request, res: Response) => {
                 VALUES (
                     ${product}, ${client}, ${quantity}, '${date}', ${price}
                 );`, (error: Error, results: any) => {
-                    if (error) { throw error }
+                    if (error) {
+                        res.status(500).json({ "results": "error" })
+                        throw error
+                    }
                     else {
                         pool.query(`
                         UPDATE public."Product"
                         SET quantity_in_stock = quantity_in_stock - 1
                         WHERE id = ${product};
                         `, (error: Error, results: any) => {
-                            if (error) { throw error }
+                            if (error) {
+                                res.status(500).json({ "results": "error" })
+                                throw error
+                            }
                         })
 
                         console.log("Registered")
@@ -137,13 +152,13 @@ const registerSale = (req: Request, res: Response) => {
         .catch((e: Error) => console.log(e))
 }
 
-const updateClient = (req: Request, res: Response) => {
+export const updateClient = (req: Request, res: Response) => {
     console.log("Received new update to client:")
     console.log(req.body)
 
     const { id, name } = req.body
 
-    if (name === undefined || id === undefined) {
+    if (!name || !id) {
         console.log("Refused to update with incomplete data")
         res.status(400).json({ "results": "incomplete" })
         return
@@ -154,19 +169,22 @@ const updateClient = (req: Request, res: Response) => {
         SET name='${name}'
         WHERE id = ${id};
         `, (error: Error, results: any) => {
-        if (error) { throw error }
+        if (error) {
+            res.status(500).json({ "results": "error" })
+            throw error
+        }
 
         res.status(200).json({ "results": "success" })
     })
 }
 
-const updateProduct = (req: Request, res: Response) => {
+export const updateProduct = (req: Request, res: Response) => {
     console.log("Received new update to product:")
     console.log(req.body)
 
     const { id, name, price, quantity } = req.body
 
-    if (name === undefined || id === undefined || price === undefined || quantity === undefined) {
+    if (!name || !id || !price || !quantity) {
         console.log("Refused to update with incomplete data")
         res.status(400).json({ "results": "incomplete" })
         return
@@ -177,21 +195,62 @@ const updateProduct = (req: Request, res: Response) => {
         SET name='${name}', default_price=${price}, quantity_in_stock=${quantity}
         WHERE id = ${id};
         `, (error: Error, results: any) => {
-        if (error) { throw error }
+        if (error) {
+            res.status(500).json({ "results": "error" })
+            throw error
+        }
 
         res.status(200).json({ "results": "success" })
     })
 }
 
-export {
-    getClientTable,
-    getInventoryTable,
-    getSaleTable,
 
-    registerClient,
-    registerProduct,
-    registerSale,
+export const deleteClient = (req: Request, res: Response) => {
+    console.log("Received request to delete a client:")
+    console.log(req.body)
 
-    updateClient,
-    updateProduct
+    const { id } = req.body
+
+    if (!id) {
+        console.log("Refused to perform delete request with incomplete data")
+        res.status(400).json({ "results": "incomplete" })
+        return
+    }
+
+    pool.query(`
+        DELETE FROM public."Client"
+        WHERE id = ${id};
+        `, (error: Error, results: any) => {
+        if (error) {
+            res.status(500).json({ "results": "error" })
+            throw error
+        }
+
+        res.status(200).json({ "results": "success" })
+    })
+}
+
+export const deleteProduct = (req: Request, res: Response) => {
+    console.log("Received request to delete a product:")
+    console.log(req.body)
+
+    const { id } = req.body
+
+    if (!id) {
+        console.log("Refused to perform delete request with incomplete data")
+        res.status(400).json({ "results": "incomplete" })
+        return
+    }
+
+    pool.query(`
+        DELETE FROM public."Product"
+        WHERE id = ${id};
+        `, (error: Error, results: any) => {
+        if (error) {
+            res.status(500).json({ "results": "error" })
+            throw error
+        }
+
+        res.status(200).json({ "results": "success" })
+    })
 }
