@@ -30,6 +30,9 @@ app.post('/newsale', db.registerSale)
 app.post('/updateclient', db.updateClient)
 app.post('/updateproduct', db.updateProduct)
 
+app.delete('/deleteclient', db.deleteClient)
+app.delete('/delteproduct', db.deleteProduct)
+
 app.get('/', (req: Request, res: Response) => {
     res.send('well done')
 })
