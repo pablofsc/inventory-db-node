@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 require('dotenv').config()
+import * as dbu from './databaseutils'
 
 const Pool = require('pg').Pool
 
@@ -13,59 +14,25 @@ const pool = new Pool({
 
 console.log(process.env.DATABASE_URL)
 
-interface client {
-    id: number,
-    name: string
+export const getInventoryTable = async (req: Request, res: Response): Promise<void> => {
+    const result = await dbu.selectTable('Product')
+
+    if (!result) { res.status(500).json({ "results": "error" }) }
+    else { res.status(200).json(result) }
 }
 
-interface product {
-    id: number,
-    name: string,
-    default_price: string,
-    quantity_in_stock: number
+export const getClientTable = async (req: Request, res: Response): Promise<void> => {
+    const result = await dbu.selectTable('Client')
+
+    if (!result) { res.status(500).json({ "results": "error" }) }
+    else { res.status(200).json(result) }
 }
 
-interface sale {
-    id: number,
-    product_id: number,
-    client_id: number,
-    quantity: number,
-    price: string,
-    product_name: string,
-    client_name: string
-}
+export const getSaleTable = async (req: Request, res: Response): Promise<void> => {
+    const result = await dbu.selectTable('Sale')
 
-export const getInventoryTable = (req: Request, res: Response) => {
-    pool.query('SELECT * FROM public."Product"', (error: Error, results: any) => {
-        if (error) {
-            res.status(500).json({ "results": "error" })
-            throw error
-        }
-
-        res.status(200).json(results.rows)
-    })
-}
-
-export const getClientTable = (req: Request, res: Response) => {
-    pool.query('SELECT * FROM public."Client"', (error: Error, results: any) => {
-        if (error) {
-            res.status(500).json({ "results": "error" })
-            throw error
-        }
-
-        res.status(200).json(results.rows)
-    })
-}
-
-export const getSaleTable = (req: Request, res: Response) => {
-    pool.query('SELECT * FROM public."Sale"', (error: Error, results: any) => {
-        if (error) {
-            res.status(500).json({ "results": "error" })
-            throw error
-        }
-
-        res.status(200).json(results.rows)
-    })
+    if (!result) { res.status(500).json({ "results": "error" }) }
+    else { res.status(200).json(result) }
 }
 
 export const registerClient = (req: Request, res: Response) => {
@@ -124,56 +91,67 @@ export const registerProduct = (req: Request, res: Response) => {
     })
 }
 
-export const registerSale = async (req: Request, res: Response) => {
+export const registerSale = async (req: Request, res: Response): Promise<void> => {
     console.log("Received new sale to be registered:")
     console.log(req.body)
 
-    const { product, client, quantity, date, price } = req.body
+    const { product, client, quantity, price } = req.body
 
-    if (!product || !client || !quantity || !date || !price) {
+    if (!product || !client || !quantity || !price) {
         console.log("Refused to register incomplete data")
         res.status(400).json({ "results": "incomplete" })
         return
     }
 
-    pool.query(`SELECT quantity_in_stock FROM public."Product" WHERE id = ${product}`)
-        .then((result: any) => {
-            if (!result.rows[0] || result.rows[0].quantity_in_stock < quantity) {
-                console.log("Refused to register sale with insufficient stock")
-                res.status(400).json({ "results": "invalid" })
-            }
-            else {
-                console.log("Sale is consistent")
-                pool.query(`
-                INSERT INTO public."Sale" (
-                    product_id, client_id, quantity, sale_date, price
-                )
-                VALUES (
-                    ${product}, ${client}, ${quantity}, '${date}', ${price}
-                );`, (error: Error, results: any) => {
-                    if (error) {
-                        res.status(500).json({ "results": "error" })
-                        throw error
-                    }
-                    else {
-                        pool.query(`
-                        UPDATE public."Product"
-                        SET quantity_in_stock = quantity_in_stock - 1
-                        WHERE id = ${product};
-                        `, (error: Error, results: any) => {
-                            if (error) {
-                                res.status(500).json({ "results": "error" })
-                                throw error
-                            }
-                        })
+    const productName = await dbu.select('Product', 'name', product)
+    if (!productName) {
+        console.log("Refused to register sale of inexistent item")
+        res.status(400).json({ "results": "invalid" })
+        return
+    }
 
-                        console.log("Registered")
-                        res.status(200).json({ "results": "success" })
-                    }
-                })
-            }
-        })
-        .catch((e: Error) => console.log(e))
+    const productAmountInStock = await dbu.select('Product', 'quantity_in_stock', product)
+    if (!productAmountInStock || productAmountInStock < quantity) {
+        console.log("Refused to register sale with insufficient stock")
+        res.status(400).json({ "results": "invalid" })
+        return
+    }
+
+    const customerName = await dbu.select('Client', 'name', client)
+    if (!customerName) {
+        console.log("Refused to register sale to inexistent customer")
+        res.status(400).json({ "results": "invalid" })
+        return
+    }
+
+    console.log("Sale is consistent - saving to database")
+
+    await pool.query(`
+        INSERT INTO public."Sale" (
+            product_id, client_id, quantity, price, product_name, client_name
+        )
+        VALUES (
+            ${product}, ${client}, ${quantity}, ${price}, '${productName}', '${customerName}'
+        );`, (error: Error, results: any) => {
+        if (error) {
+            res.status(500).json({ "results": "error" })
+            throw error
+        }
+    })
+
+    await pool.query(`
+        UPDATE public."Product"
+        SET quantity_in_stock = quantity_in_stock - 1
+        WHERE id = ${product};
+    `, (error: Error, results: any) => {
+        if (error) {
+            res.status(500).json({ "results": "error" })
+            throw error
+        }
+    })
+
+    console.log("Registered")
+    res.status(200).json({ "results": "success" })
 }
 
 export const updateClient = (req: Request, res: Response) => {
@@ -229,15 +207,15 @@ export const updateProduct = (req: Request, res: Response) => {
 }
 
 
-export const deleteClient = (req: Request, res: Response) => {
+export const deleteClient = async (req: Request, res: Response): Promise<void> => {
     console.log("Received request to delete a client:")
     console.log(req.body)
 
     const { id } = req.body
 
-    if (!id) {
-        console.log("Refused to perform delete request with incomplete data")
-        res.status(400).json({ "results": "incomplete" })
+    if (!id || !await dbu.select('Client', 'id', id)) {
+        console.log("Refused to perform delete request with incomplete data or inexistent target")
+        res.status(400).json({ "results": "invalid" })
         return
     }
 
@@ -254,15 +232,15 @@ export const deleteClient = (req: Request, res: Response) => {
     })
 }
 
-export const deleteProduct = (req: Request, res: Response) => {
+export const deleteProduct = async (req: Request, res: Response): Promise<void> => {
     console.log("Received request to delete a product:")
     console.log(req.body)
 
     const { id } = req.body
 
-    if (!id) {
-        console.log("Refused to perform delete request with incomplete data")
-        res.status(400).json({ "results": "incomplete" })
+    if (!id || !await dbu.select('Product', 'id', id)) {
+        console.log("Refused to perform delete request with incomplete data or inexistent target")
+        res.status(400).json({ "results": "invalid" })
         return
     }
 
