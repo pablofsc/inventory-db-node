@@ -1,6 +1,4 @@
 import { Request, Response } from 'express'
-import * as op from './database'
-
 require('dotenv').config()
 
 const Pool = require('pg').Pool
@@ -13,9 +11,39 @@ const pool = new Pool({
     }
 })
 
+console.log(process.env.DATABASE_URL)
+
+interface client {
+    id: number,
+    name: string
+}
+
+interface product {
+    id: number,
+    name: string,
+    default_price: string,
+    quantity_in_stock: number
+}
+
+interface sale {
+    id: number,
+    product_id: number,
+    client_id: number,
+    quantity: number,
+    price: string,
+    product_name: string,
+    client_name: string
+}
 
 export const getInventoryTable = (req: Request, res: Response) => {
-    return (op.selectAll('Product'))
+    pool.query('SELECT * FROM public."Product"', (error: Error, results: any) => {
+        if (error) {
+            res.status(500).json({ "results": "error" })
+            throw error
+        }
+
+        res.status(200).json(results.rows)
+    })
 }
 
 export const getClientTable = (req: Request, res: Response) => {
@@ -96,7 +124,7 @@ export const registerProduct = (req: Request, res: Response) => {
     })
 }
 
-export const registerSale = (req: Request, res: Response) => {
+export const registerSale = async (req: Request, res: Response) => {
     console.log("Received new sale to be registered:")
     console.log(req.body)
 
