@@ -1,4 +1,6 @@
 import { Request, Response } from 'express'
+import * as op from './database'
+
 require('dotenv').config()
 
 const Pool = require('pg').Pool
@@ -11,15 +13,9 @@ const pool = new Pool({
     }
 })
 
-export const getInventoryTable = (req: Request, res: Response) => {
-    pool.query('SELECT * FROM public."Product"', (error: Error, results: any) => {
-        if (error) {
-            res.status(500).json({ "results": "error" })
-            throw error
-        }
 
-        res.status(200).json(results.rows)
-    })
+export const getInventoryTable = (req: Request, res: Response) => {
+    return (op.selectAll('Product'))
 }
 
 export const getClientTable = (req: Request, res: Response) => {
@@ -114,8 +110,8 @@ export const registerSale = (req: Request, res: Response) => {
 
     pool.query(`SELECT quantity_in_stock FROM public."Product" WHERE id = ${product}`)
         .then((result: any) => {
-            if (result.rows[0] === undefined || result.rows[0].quantity_in_stock < quantity) {
-                console.log("Refused to register sale of inexistent item")
+            if (!result.rows[0] || result.rows[0].quantity_in_stock < quantity) {
+                console.log("Refused to register sale with insufficient stock")
                 res.status(400).json({ "results": "invalid" })
             }
             else {
