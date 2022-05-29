@@ -256,3 +256,29 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
         res.status(200).json({ "results": "success" })
     })
 }
+
+export const updateStock = (req: Request, res: Response) => {
+    console.log("Received new update to product:")
+    console.log(req.body)
+
+    const { id, quantity } = req.body
+
+    if (!id || !quantity) {
+        console.log("Refused to update with incomplete data")
+        res.status(400).json({ "results": "incomplete" })
+        return
+    }
+
+    pool.query(`
+        UPDATE public."Product"
+        SET quantity_in_stock= quantity_in_stock + ${quantity}
+        WHERE id = ${id};
+        `, (error: Error, results: any) => {
+        if (error) {
+            res.status(500).json({ "results": "error" })
+            throw error
+        }
+
+        res.status(200).json({ "results": "success" })
+    })
+}

@@ -29,6 +29,7 @@ app.post('/newsale', db.registerSale)
 
 app.patch('/updateclient', db.updateClient)
 app.patch('/updateproduct', db.updateProduct)
+app.patch('/updatestock', db.updateStock)
 
 app.delete('/deleteclient', db.deleteClient)
 app.delete('/deleteproduct', db.deleteProduct)
