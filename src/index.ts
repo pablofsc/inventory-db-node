@@ -1,41 +1,41 @@
-import express, { Request, Response } from 'express'
-import bodyparser from 'body-parser'
-import dotenv from 'dotenv'
+import express, { Request, Response } from 'express';
+import bodyparser from 'body-parser';
+import dotenv from 'dotenv';
 
-const cors = require('cors')
+const cors = require('cors');
 
-import * as db from './queries'
+import * as db from './controllers';
 
-dotenv.config()
-const port = process.env.PORT
+dotenv.config();
+const port = process.env.PORT;
 
-const app = express()
+const app = express();
 
-app.use(cors())
-app.use(bodyparser.json())
+app.use(cors());
+app.use(bodyparser.json());
 app.use(
     bodyparser.urlencoded({
-        extended: true
+        extended: true,
     })
-)
+);
 
-app.get('/inventory', db.getInventoryTable)
-app.get('/clients', db.getClientTable)
-app.get('/sales', db.getSaleTable)
+app.get('/inventory', db.getInventory);
+app.get('/customers', db.getCustomers);
+app.get('/sales', db.getSales);
 
-app.post('/newproduct', db.registerProduct)
-app.post('/newclient', db.registerClient)
-app.post('/newsale', db.registerSale)
+app.post('/newproduct', db.registerProduct);
+app.post('/newcustomer', db.registerCustomer);
+app.post('/newsale', db.registerSale);
 
-app.patch('/updateclient', db.updateClient)
-app.patch('/updateproduct', db.updateProduct)
-app.patch('/updatestock', db.updateStock)
+app.patch('/updatecustomer', db.updateCustomer);
+app.patch('/updateproduct', db.updateProduct);
+app.patch('/updatestock', db.addStock);
 
-app.delete('/deleteclient', db.deleteClient)
-app.delete('/deleteproduct', db.deleteProduct)
+app.delete('/deletecustomer', db.deleteCustomer);
+app.delete('/deleteproduct', db.deleteProduct);
 
 app.get('/', (req: Request, res: Response) => {
-    res.send('Working')
-})
+    res.send('Working');
+});
 
-app.listen(port, () => console.log(`NOW RUNNING ON PORT ${port}`))
+app.listen(port, () => console.log(`NOW RUNNING ON PORT ${port}`));
