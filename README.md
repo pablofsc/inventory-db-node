@@ -3,7 +3,7 @@
 Recebe solicitações do projeto <a href='https://github.com/pablofsc/inventory-manager'>inventory-manager</a> e as realiza no banco de dados.<br>
 Este projeto deve ser hospedado no Heroku com um banco de dados PostgreSQL devidamente configurado com as seguintes tabelas:
 
-![inventory drawio](https://user-images.githubusercontent.com/69557622/177455433-2be62c8f-11cd-4664-b8a2-485c9b2a21e9.png)
+![inventory drawio](https://user-images.githubusercontent.com/69557622/178373840-8bdb1524-941e-4a3e-8145-5dbe8e37ab7c.png)
 
 ## Principais tecnologias utilizadas
 
